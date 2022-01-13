@@ -1,7 +1,6 @@
 # 이전일자 뽑아내기
 ## DATE_SUB 사용
 
-
 *| sql "SELECT *, max(REFERENCEDATE) OVER () AS TODAY FROM angora" 
 | fields REFERENCEDATE, TODAY
 | sql "SELECT REFERENCEDATE, TODAY, DATE_SUB(TODAY,1) as YESTERDAY FROM angora"

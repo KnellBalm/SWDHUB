@@ -2,8 +2,9 @@
 # - ex) `수원시 누적 확진자 `,
 # ''가 아닌 ``를(~) 사용 
 
+
+######################## DATE_SUB 사용 ######################## 
 # 이전 일자 뽑아내기
-############# DATE_SUB 사용 ############### 
 
 ## 이전 일자
 *| sql "SELECT *, max(REFERENCEDATE) OVER () AS TODAY FROM angora"              # 최신 일자
@@ -17,3 +18,13 @@
 | sql "SELECT *, max(YEAR) over() as TODAY FROM angora"    # 기준 일자
 | sql "SELECT *, DATE_SUB(TODAY,365) as LYEAR FROM angora" # 기준일자와 365일(1년) 이전 일자 추출
 | substr LYEAR 0 4 as LYEAR                                # 1년 이전 일자에서 4자리만 이전 년도로 사용
+
+###############################################################
+
+
+################ 시도별 진척률 or 현황 표현하기 ################# 
+*| fields SI_GUN_NAME, FOOD_WASTE_OCCURRENCE_QUANTITY, POPULATION_COUNT
+| case when SI_GUN_NAME = '수원시' then FOOD_WASTE_OCCURRENCE_QUANTITY as 수원시
+| case when SI_GUN_NAME = '수원시' then null FOOD_WASTE_OCCURRENCE_QUANTITY as `음식 폐기물 총량`
+| sort -FOOD_WASTE_OCCURRENCE_QUANTITY
+| fields SI_GUN_NAME, POPULATION_COUNT, 수원시, `음식 폐기물 총량`

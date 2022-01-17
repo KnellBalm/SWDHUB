@@ -15,5 +15,5 @@
 | sort DATE
 | fields DATE, value
 | sql "SELECT *,sum(value) over (order by DATE) as sum_total FROM angora"
-| replace DATE "-","."
+| replace DATE "-" "."
 | fields DATE, sum_total as 수원시 누적 확진

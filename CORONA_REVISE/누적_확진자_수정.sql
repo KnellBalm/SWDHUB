@@ -9,7 +9,7 @@
 | replace DATE "-","."
 | fields DATE, sum_total as 수원시 누적 확진
 
-# common_data_19_revise
+# common_data_19 revise
 | timeline POSITIVITY_DISPATCH 1H
 | substr key 3 8 as DATE
 | sort DATE

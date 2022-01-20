@@ -22,7 +22,7 @@
 
 
 
-# common_data 28 REVISE(ver. since 21)
+# common_data 28 REVISE(ver. since 21) - fixed
 
 | join outer '2차 일반인 예방접종' 1차 일반인 예방접종.REFERENCEDATE = 2차 일반인 예방접종.REFERENCEDATE 
 | fields REFERENCEDATE, CNT1, 2차 일반인 예방접종_CNT2 as CNT2  

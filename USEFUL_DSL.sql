@@ -28,3 +28,8 @@
 | case when SI_GUN_NAME = '수원시' then null FOOD_WASTE_OCCURRENCE_QUANTITY as `음식 폐기물 총량`
 | sort -FOOD_WASTE_OCCURRENCE_QUANTITY
 | fields SI_GUN_NAME, POPULATION_COUNT, 수원시, `음식 폐기물 총량`
+
+
+##################### 다중 조건 검색 ############################
+*| where DATE = NDATE AND CITY_AND_PROVINCES IN ('합계','경기')
+

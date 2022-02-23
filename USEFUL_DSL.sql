@@ -33,3 +33,13 @@
 ##################### 다중 조건 검색 ############################
 *| where DATE = NDATE AND CITY_AND_PROVINCES IN ('합계','경기')
 
+
+####################### 기간 설정 ###############################
+레이블 객체에 결과 값 사용 시
+## 날짜 설정
+- 날짜/시간선택 개체 사용
+${date_time_picker_1}
+## 기간 설정
+- 기간설정 객체 사용
+시작시간 : ${date_time_range_picker_1.startDate}
+종료시간 : ${date_time_range_picker_1.endDate}

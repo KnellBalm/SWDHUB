@@ -106,6 +106,77 @@ sum(CNT4) OVER(ORDER BY REFERENCEDATE) AS GCOM4 FROM angora"                    
 | SUBSTR 기준일자 3 8 AS 기준일자                                                                                                  # 2022-01-01 > 22-01-01 으로 변경
 | REPLACE 기준일자 "-" "."                                                                                                         # 22-01-01 > 22.01.01 으로 변경
 
+############################################################# 확진자 파트 #####################################################################################
+# 전국/경기도의 확진자와 수원시 확진자 데이터의 집계 일자가 다르기 때문에 수원시 집계일자에 맞춰서 조회해야 함
+
+# 수원시 확진자 집계일 
+# 데이터 모델 : 코로나 발생 현황 2
+# 데이터 객체 이름 : CORONA_DATE
+*| WHERE CONFIRM_DATE IS NOT NULL                                 # 확진일자가 비어있는 값 제외
+| sql "SELECT *, max(CONFIRM_DATE) OVER () AS TODAY FROM angora"  # 최근 확진일자 추출
+| FIELDS TODAY                                                    # 필요한 컬럼만 추출
+| DISTINCT *                                                      # 중복 제외
+| REPLACE TODAY "/" "-"                                           # 2022-01-01 > 2022.01.01 로 변경
+
+# 수원시 금일 확진자
+# 데이터 모델 : 코로나 발생 현황 2
+*| WHERE CONFIRM_DATE IS NOT NULL                                  # 확진일자가 비어있는 값 제외
+| sql "SELECT *, max(REFERENCEDATE) OVER () AS TODAY FROM angora"  # 최근 확진일자 추출
+| sql "SELECT *, DATE_SUB(TODAY,1) AS YESTERDAY FROM angora"       # 어제일자 추출
+| WHERE CONFIRM_DATE = YESTERDAY                                   # 확진일자와 어제 일자가 같은 데이터만 추출  
+| STATS COUNT(NUMBER)                                              # 확진자 수 집계
+
+# 수원시 누적 확진자
+# 데이터 모델 : 코로나 발생 현황 2
+*| WHERE CONFIRM_DATE IS NOT NULL # 확진일자가 비어있는 값 제외  
+| STATS COUNT(NUMBER)             # 전체 숫자 집계
+
+## 전국/경기도 확진자
+# 데이터 모델 : 전국 코로나 발생 현황
+*| TYPECAST REFERENCEDATE date                                                                                   # 기준일자 일자 type으로 변경
+| TYPECAST REFERENCEDATE TEXT                                                                                    # 기준일자 문자 type으로 변경
+| REPLACE REFERENCEDATE "/" "-"                                                                                  # 2022/01/01 > 2022-01-01 로 변경
+| WHERE CITY_AND_PROVINCES IN ('합계','경기') AND REFERENCEDATE = '{CORONA_DATE.results[0][0]}'                   # 시도명이 합계 혹은 경기이면서 데이터 기준일자가 CORONA_DATE와 일치하는 값 조회
+| FIELDS CITY_AND_PROVINCES AS 시도, CONFIRMED_PERSON AS 누적, BEFORE_DATE_VERSUS_INCREASE_AND_DECREASE AS 금일   # 필요한 컬럼만 추출
+
+#################################################################################################################################################################################
+
+############################################################## 백신 수급 파트 #################################################################
+
+## 백신 수급 현황
+# 데이터 모델 : 백신 수급 현황
+*| sql "SELECT *, max(REFERENCEDATE) over () as DATE FROM angora"
+| WHERE REFERENCEDATE = DATE
+| CASE WHEN VACCINE_TYPE = '화이자' THEN 1 WHEN VACCINE_TYPE = '모더나' THEN 2 WHEN VACCINE_TYPE = '아스트라제네카' THEN 3 WHEN VACCINE_TYPE = '얀센' THEN 4 WHEN VACCINE_TYPE = '노바백스' THEN 5 AS vac_sort
+| CASE WHEN VACCINE_TYPE = '화이자' THEN '화이자' WHEN VACCINE_TYPE = '모더나' THEN '모더나' WHEN VACCINE_TYPE = '아스트라제네카' THEN 'AZ' WHEN VACCINE_TYPE = '얀센' THEN '얀센' WHEN VACCINE_TYPE = '노바백스' THEN '노바백스' AS new_vacc
+| SORT +vac_sort 
+| FIELDS new_vacc AS 종류, TODAY_WAREHOUSING_QUANTITY AS 금일 입고, ACCUMULATE_TOTAL_WAREHOUSING_QUANTITY_A AS 입고 누계, TODAY_USAGE_QUANTITY AS 금일 사용, ACCMULATE_TOTAL_USAGE_QUANTITY_B AS 사용누계, REMAINDER_QUANTITY_A_B AS 잔여량
+# 최근일자 추출
+# 최근일자와 맞는 데이터만 추출
+# 백신별 순서
+# 백신별 이름 재지정
+# 백신별 정렬
+# 컬럼 이름 수정 및 추출
+
+## 백신별 접종 현황
+# 데이터 모델 : 일반인 접종 현황
+*| WHERE VACCINE_NAME IS NOT NULL
+| STATS COUNT(TYPE) AS `백신종류` BY VACCINE_NAME
+| CASE WHEN VACCINE_NAME = '화이자' THEN '화이자' WHEN VACCINE_NAME = '모더나' THEN '모더나' WHEN VACCINE_NAME = '아스트라제네카' THEN 'AZ' WHEN VACCINE_NAME = '얀센' THEN '얀센' WHEN VACCINE_NAME = '노바백스' THEN '노바백스'
+| FIELDS -VACCINE_NAME
+| SORT -백신종류
+| FIELDS result AS 백신이름, 백신종류 AS 개수
+
+## 이상반응 발생 현황
+# 데이터 모델 : 이상 반응 발생 현황
+*| sql "SELECT *, max(REFERENCEDATE) OVER () AS DATE FROM angora"
+| WHERE REFERENCEDATE = DATE
+| numbering
+| fillna SLIGHT_ILLNESS 0, SERIOUS_ILLNESS 0, DEATH_CASE 0 , VACCINATION_CENTER_ABNORMAL_RESPONSE 0, SUMMATION 0
+| CALCULATE SLIGHT_ILLNESS + SERIOUS_ILLNESS + DEATH_CASE + VACCINATION_CENTER_ABNORMAL_RESPONSE AS 합계
+| FIELDS TYPE AS 구분, 합계, SLIGHT_ILLNESS AS 경증, SERIOUS_ILLNESS AS 중증, VACCINATION_CENTER_ABNORMAL_RESPONSE AS 접종센터 이상반응, DEATH_CASE AS 기타
+
+
 
 
 

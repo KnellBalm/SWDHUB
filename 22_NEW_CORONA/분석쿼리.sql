@@ -167,6 +167,14 @@ sum(CNT4) OVER(ORDER BY REFERENCEDATE) AS GCOM4 FROM angora"                    
 | SORT -백신종류
 | FIELDS result AS 백신이름, 백신종류 AS 개수
 
+######### 테이블 처럼 만들기 ############
+*| WHERE VACCINE_NAME IS NOT NULL
+| rename VACCINE_NAME 백신명
+| STATS COUNT(TYPE) as 개수 by 백신명
+| PIVOT SUM(개수) SPLITCOL 백신명
+| FIELDS 화이자, 모더나, 아스트라제네카 as AZ, 얀센, 노바백스
+
+
 ## 이상반응 발생 현황
 # 데이터 모델 : 이상 반응 발생 현황
 *| sql "SELECT *, max(REFERENCEDATE) OVER () AS DATE FROM angora"

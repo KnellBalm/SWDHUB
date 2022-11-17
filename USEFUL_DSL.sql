@@ -43,3 +43,26 @@ ${date_time_picker_1}
 - 기간설정 객체 사용
 시작시간 : ${date_time_range_picker_1.startDate}
 종료시간 : ${date_time_range_picker_1.endDate}
+
+################ 넌적스 구문 사용 ################################
+{% if ima_viewer_1 %}
+| where ADMIN_DONG = '${ima_viewer_1}'
+{% elseif hidden_1 == 'reset' %}
+| stats sum(amount) by date_time
+{% else %}
+| stats sum(amount) by date_time
+{% endif %}
+# if 지도의 값이 있을때
+# elseif 초기화에 값이 있을 때
+# else 전체 조회일때
+#################################################################
+
+################### hidden 객체 사용 ############################
+ima 객체 
+${ima_viewer_1}
+
+버튼 객체
+reset
+
+#버튼 객체에 들어가있는 경우 문자열 그대로 입력되어 '' 불필요
+################################################################

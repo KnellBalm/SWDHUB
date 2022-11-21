@@ -66,3 +66,11 @@ reset
 
 #버튼 객체에 들어가있는 경우 문자열 그대로 입력되어 '' 불필요
 ################################################################
+
+
+################### 지난달 (yyyyMM format) #####################
+#built in sql 
+select date_format(date_sub(to_date(max(year_month), 'yyyyMM'), 1), 'yyyyMM') as last from table
+# postgresql
+select to_char(to_date(may(year_month), 'yyyyMM') - interval '1 month', 'yyyyMM') as last from table
+

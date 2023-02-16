@@ -19,8 +19,13 @@
 | sql "SELECT *, DATE_SUB(TODAY,365) as LYEAR FROM angora" # 기준일자와 365일(1년) 이전 일자 추출
 | substr LYEAR 0 4 as LYEAR                                # 1년 이전 일자에서 4자리만 이전 년도로 사용
 
-###############################################################
+## yyyyMM 형식에서 사용 - 1달 전
+*| sql "select a, date_format(date_sub(to_date(a, 'yyyyMM'), 1), 'yyyyMM') as b from angora" 
 
+## yyyyMM 형식에서 사용 - 1달 후
+*| sql "select a, date_format(date_add(to_date(a, 'yyyyMM'), 1), 'yyyyMM') as b from angora" 
+
+###############################################################
 
 ################ 시도별 진척률 or 현황 표현하기 ################# 
 *| fields SI_GUN_NAME, FOOD_WASTE_OCCURRENCE_QUANTITY, POPULATION_COUNT

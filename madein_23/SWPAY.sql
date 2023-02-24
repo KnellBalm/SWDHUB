@@ -19,4 +19,11 @@
 | calculate USE_AMOUNT / 30 as month 
 | round [0,0,0,0] col = [RECHARGE_AMOUNT,INCENTIVE_AMOUNT,USE_AMOUNT,month]
 | typecast month INTEGER
-| fields USE_AMOUNT,RECHARGE_AMOUNT,INCENTIVE_AMOUNT,SUBSCRIBER_COUNT,MEMBER_BRANCH_STORE_COUNT,month
+| fields RECHARGE_AMOUNT,USE_AMOUNT,,INCENTIVE_AMOUNT,SUBSCRIBER_COUNT,MEMBER_BRANCH_STORE_COUNT,month
+
+#행정동, 사용자 유형별 결제금액 전체 - ver.230227
+{% if combo_1 == '전체' and combo_2 == '전체' and combo_6 == '전체' %}
+${common_data_13.results[0][1]}
+{% else %}
+${common_data_6.results[0][0]}
+{% endif %}
